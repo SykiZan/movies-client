@@ -40,6 +40,7 @@ const actorsSlice = createSlice({
   reducers: {
     addMovie(state, action) {
       // state.actors = [...state.actors, action.payload];
+
       let pos = null;
       for (let i = 0; i <= state.actors.length - 1; i++) {
         if (state.actors[i].id == action.payload.id) pos = true;
@@ -47,6 +48,9 @@ const actorsSlice = createSlice({
 
       if (pos) state.actors = state.actors;
       else state.actors = [...state.actors, action.payload];
+    },
+    deleteMovies(state, action) {
+      state.actors = [];
     },
   },
 });

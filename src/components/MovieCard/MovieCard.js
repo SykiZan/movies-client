@@ -7,37 +7,23 @@ import cover from "../../theme/icons/Titanic.jpg";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { moviesActions } from "../../store/store";
+import DeleteConfirmModal from "../Modals/DeleteConfirmModal/DeleteConfirmModal";
 
 const MovieCard = (props) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isDeleteModal, setIsDeleteModal] = useState(false);
 
   const navigate = useNavigate();
-
-  const dispatch = useDispatch();
-
-  const auth = useSelector((state) => state.auth.auth);
 
   // console.log(props);
 
   const handleHover = () => {
     setIsHovered((prev) => !prev);
   };
-  const handleDelete = async (id) => {
-    const res = await fetch(process.env.REACT_APP_API_URL + `/movies/${id}`, {
-      method: "DELETE",
 
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: auth.loginToken,
-      },
-    });
-
-    const data = await res.json();
-
-    console.log(res);
-    console.log(data);
-    if (res.ok) dispatch(moviesActions.deleteMovie(id));
+  const handleDeleteModal = () => {
+    handleHover();
+    setIsDeleteModal((prev) => !prev);
   };
 
   return (
@@ -46,7 +32,7 @@ const MovieCard = (props) => {
       onMouseEnter={handleHover}
       onMouseLeave={handleHover}
     >
-      {isHovered && (
+      {isHovered && !isDeleteModal && (
         <div className={classes.overlay}>
           <button
             className={classes["btn-details"]}
@@ -54,16 +40,20 @@ const MovieCard = (props) => {
           >
             details
           </button>
-          <button
-            className={classes["btn-delete"]}
-            onClick={() => handleDelete(props.id)}
-          >
+          <button className={classes["btn-delete"]} onClick={handleDeleteModal}>
             Delete
           </button>
         </div>
       )}
       <img src={cover} alt="cover" className={classes.cover} />
       <div className={classes.description}>{props.title}</div>
+      {isDeleteModal && (
+        <DeleteConfirmModal
+          id={props.id}
+          title={props.title}
+          handleModal={handleDeleteModal}
+        />
+      )}
     </div>
   );
 };

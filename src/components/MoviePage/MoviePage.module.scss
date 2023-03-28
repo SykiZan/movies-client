@@ -1,3 +1,5 @@
+@import "../../theme/scss/mixins";
+
 .page {
   display: flex;
   flex-direction: column;
@@ -21,4 +23,17 @@
   display: flex;
   gap: 5px;
   font-size: 20px;
+}
+
+.btn-back {
+  @include Btn;
+  background-color: #600384;
+  color: #fff;
+  height: 44px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+
+  &:hover {
+    background-color: #095e50;
+  }
 }

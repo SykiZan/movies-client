@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { actorsActions } from "../../store/store";
 import AddModal from "../AddModal/AddModal";
+import AddedMovieModal from "../Modals/AddedMovieModal/AddedMovieModal";
+import ImportedCount from "../Modals/ImportedCount/ImportedCount";
 import MovieCard from "../MovieCard/MovieCard";
 
 import classes from "./Movies.module.scss";
@@ -14,6 +16,15 @@ const Movies = () => {
   const [finalData, setFinalData] = useState(null);
   const [actorsArr, setActorsArr] = useState([]);
 
+  const [isMovieAdded, setIsMovieAdded] = useState(false);
+  const [addedMovie, setAddedMovie] = useState("");
+
+  const [importedCount, setImportedCount] = useState(0);
+  const [notImportedCount, setNotImportedCount] = useState(0);
+  const [isImportedModal, setIsImportedModal] = useState(false);
+
+  const [notFound, setNotfound] = useState(false);
+
   const movies = useSelector((state) => state.movies.movies);
   const actors = useSelector((state) => state.actors.actors);
   const auth = useSelector((state) => state.auth.auth);
@@ -22,6 +33,29 @@ const Movies = () => {
 
   // console.log(movies);
   // console.log(actors);
+
+  useEffect(() => {
+    const keyDownHandler = (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        handleSearch();
+      }
+    };
+
+    document.addEventListener("keydown", keyDownHandler);
+
+    return () => {
+      document.removeEventListener("keydown", keyDownHandler);
+    };
+  }, [searchVal]);
+
+  const handleAddedModal = () => {
+    setIsMovieAdded((prev) => !prev);
+  };
+  const handleAddedMovie = (val) => {
+    setAddedMovie(val);
+  };
 
   const handleAddModal = () => {
     setIsAddModal((prev) => !prev);
@@ -35,15 +69,25 @@ const Movies = () => {
   const handleSearchVal = (e) => {
     setSearchVal(e.target.value);
   };
+  const handleImportedCount = (val) => {
+    setImportedCount(val);
+  };
+  const handleNotImportedCount = (val) => {
+    setNotImportedCount(val);
+  };
+
+  const handleImportedModal = () => {
+    setIsImportedModal((prev) => !prev);
+  };
 
   const getSorted = () => {
     let arr = JSON.parse(JSON.stringify(finalData));
 
     arr.sort(function (a, b) {
-      if (a.title < b.title) {
+      if (a.title.toLowerCase() < b.title.toLowerCase()) {
         return -1;
       }
-      if (a.title > b.title) {
+      if (a.title.toLowerCase() > b.title.toLowerCase()) {
         return 1;
       }
       return 0;
@@ -92,9 +136,15 @@ const Movies = () => {
   // console.log(actorsArr);
 
   useEffect(() => {
+    dispatch(actorsActions.deleteMovies());
+
     getActors();
     setFinalData(movies);
   }, [movies]);
+
+  // useEffect(() => {
+  //   setFinalData(actors);
+  // }, [actors]);
 
   useEffect(() => {
     if (finalData) getSorted();
@@ -111,6 +161,9 @@ const Movies = () => {
           if (!arr.includes(actors[i])) arr.push(actors[i]);
       }
     }
+
+    if (arr.length === 0) setNotfound(true);
+    else setNotfound(false);
 
     // console.log(arr);
     setFinalData(arr);
@@ -148,7 +201,28 @@ const Movies = () => {
             <MovieCard key={e.id} id={e.id} title={e.title} />
           ))}
       </section>
-      {isAddModal && <AddModal handleModal={handleAddModal} />}
+      {movies.length === 0 && <h3>No movies yet</h3>}
+      {notFound && movies.length > 0 && <h3>No movies found</h3>}
+      {isAddModal && (
+        <AddModal
+          handleModal={handleAddModal}
+          handleAddedModal={handleAddedModal}
+          handleAddedMovie={handleAddedMovie}
+          handleImportedCount={handleImportedCount}
+          handleNotImportedCount={handleNotImportedCount}
+          handleImportedModal={handleImportedModal}
+        />
+      )}
+      {isMovieAdded && (
+        <AddedMovieModal title={addedMovie} handleModal={handleAddedModal} />
+      )}
+      {isImportedModal && (
+        <ImportedCount
+          imported={importedCount}
+          notImported={notImportedCount}
+          handleModal={handleImportedModal}
+        />
+      )}
     </div>
   );
 };

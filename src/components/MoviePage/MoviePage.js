@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import classes from "./MoviePage.module.scss";
 
@@ -8,6 +8,8 @@ import { useSelector } from "react-redux";
 
 const MoviePage = () => {
   const params = useParams();
+
+  const navigate = useNavigate();
 
   const [movieData, setMovieData] = useState(null);
 
@@ -60,6 +62,14 @@ const MoviePage = () => {
             ))}
           </div>
           <div className={classes.format}>{movieData.format}</div>
+          <button
+            className={classes["btn-back"]}
+            onClick={() => {
+              navigate("/movies");
+            }}
+          >
+            Back to movies
+          </button>
         </>
       )}
     </div>
